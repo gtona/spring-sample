@@ -68,7 +68,7 @@ public class ProductControllerTest {
 		this.mockMvc.perform(get("/product/search")
 				.param("productId", id)
 				.accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
+				.andExpect(status().isBadRequest())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.errorText").value(errorText));
 	}
@@ -103,6 +103,7 @@ public class ProductControllerTest {
 		this.mockMvc.perform(post("/product/add")
 				.content(body)
 				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.errorText").value("Could not add new product"));
 	}

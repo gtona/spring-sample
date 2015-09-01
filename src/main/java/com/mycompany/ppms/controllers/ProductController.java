@@ -32,8 +32,10 @@ public class ProductController {
 
 		Product product = productService.find(productId);
 		if(product != null) {
+			response.setStatus(200);
 			response.getWriter().write(product.toJson());
 		} else {
+			response.setStatus(400);
 			response.getWriter().write("{\"errorText\":\"" + errorText + "\"}");
 		}
 	}
@@ -50,8 +52,10 @@ public class ProductController {
 
 		Product product = productService.add(new Product(productId, productName));
 		if(product != null) {
+			response.setStatus(200);
 			response.getWriter().write("{\"message\": \"successfully added new product\"}");
 		} else {
+			response.setStatus(400);
 			response.getWriter().write("{\"errorText\":\"" + errorText + "\"}");
 		}
 	}
