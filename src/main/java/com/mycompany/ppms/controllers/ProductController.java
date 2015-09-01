@@ -1,7 +1,10 @@
 package com.mycompany.ppms.controllers;
 
+import com.mycompany.ppms.models.Product;
+import com.mycompany.ppms.services.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,17 +19,20 @@ public class ProductController {
 	
 	final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
+	@Autowired ProductService productService;
+
 	@RequestMapping(value = "/product/search", method = RequestMethod.GET)
 	public void productSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String keyword = request.getParameter("shoeId");
-		String errorText = String.format("Could not find any product matches '%s'", keyword);
+		String productId = request.getParameter("productId");
+		String errorText = String.format("Could not find any product matches '%s'", productId);
 		
-		logger.info("productSearch called with '" + keyword + "'");
+		logger.info("productSearch called with '" + productId + "'");
 		
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		
-		if("1".equals(keyword)) {
-			response.getWriter().write("{\"name\":\"Very Nice Shoes\"}");
+
+		Product product = productService.find(productId);
+		if(product != null) {
+			response.getWriter().write(product.toJson());
 		} else {
 			response.getWriter().write("{\"errorText\":\"" + errorText + "\"}");
 		}
