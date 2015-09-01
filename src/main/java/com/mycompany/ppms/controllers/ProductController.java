@@ -37,4 +37,22 @@ public class ProductController {
 			response.getWriter().write("{\"errorText\":\"" + errorText + "\"}");
 		}
 	}
+
+	@RequestMapping(value = "/product/add", method = RequestMethod.POST)
+	public void productAdd(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String productId = request.getParameter("id");
+		String productName = request.getParameter("name");
+		String errorText = String.format("Could not add new product");
+
+		logger.info("productAdd called with '" + productId + "'");
+
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+		Product product = productService.add(new Product(productId, productName));
+		if(product != null) {
+			response.getWriter().write("{\"message\": \"successfully added new product\"}");
+		} else {
+			response.getWriter().write("{\"errorText\":\"" + errorText + "\"}");
+		}
+	}
 }

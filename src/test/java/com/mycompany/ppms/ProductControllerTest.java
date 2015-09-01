@@ -18,8 +18,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,9 +39,6 @@ public class ProductControllerTest {
     public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		MockitoAnnotations.initMocks(this);
-
-		when(productService.find("1"))
-				.thenReturn(new Product("1", "stubbed product"));
     }
 
 	// searching for a Product -----------------------------------------------------------------------------------------
@@ -48,7 +47,8 @@ public class ProductControllerTest {
     public void validSearch_returnsProduct() throws Exception {
 		String id = "1";
 
-
+		when(productService.find("1"))
+				.thenReturn(new Product("1", "stubbed product"));
 
         this.mockMvc.perform(get("/product/search")
         		.param("productId", id)
@@ -61,7 +61,7 @@ public class ProductControllerTest {
     
 	@Test
 	public void invalidSearch_returnsError() throws Exception {
-		String id = "-1";
+		String id = "non-existent id";
 		String errorText = String.format(
 				"Could not find any product matches '%s'", id);
 
@@ -76,8 +76,35 @@ public class ProductControllerTest {
 	// Adding a new Product --------------------------------------------------------------------------------------------
 
 	@Test
-	public void validProduct_isAddedToRepository() {
+	public void validProduct_isAddedToRepository() throws Exception {
+		String body = "{\"" +
+				"id\":\"" + "new id" + "\"," +
+				"\"name\":\"" + "new name" + "\"" +
+				"}";
 
+		when(productService.add(any(Product.class)))
+				.thenReturn(new Product("1", "stubbed product"));
+
+		this.mockMvc.perform(post("/product/add")
+				.content(body)
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.message").value("successfully added new product"));
+	}
+
+	@Test
+	public void invalidProduct_returnsError() throws Exception {
+		String body = "{\"" +
+				"id\":\"" + "new id" + "\"," +
+				"\"name\":\"" + "new name" + "\"" +
+				"}";
+
+		this.mockMvc.perform(post("/product/add")
+				.content(body)
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.errorText").value("Could not add new product"));
 	}
 
 	//	describe("adding a new product") {
